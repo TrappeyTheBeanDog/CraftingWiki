@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <div id="ForecastDIV" style="width: 200px; text-align: left; margin-left: auto; margin-right: auto;"></div>
+
+</div>
+
+@section Scripts
+{
+    <script>
+        function craftingDrilldown(e) {
+            var container = $(e.target).closest("div");
+            var itemId = $(e.target).closest("div").data("itemId");
+
+            $.ajax(
+                {
+                    url: "https://localhost:53408/item/" + itemId,
+                    data: {},
+                    dataType: "json",
+                    method: "GET",
+                    success: function (d) {
+                        container.off("click");
+                        container.css("cursor", "");
+                        var recipeContainer = $("<div style='margin-left: 10px; border-left: solid 4px gray; padding-left: 10px;'>");
+                        container.append(recipeContainer);
+                        $.each(d.recipe, function (i, row) {
+                            var div = $("<div>");
+                            div.css("cursor", "pointer");
+                            div.data("itemId", row.itemId);
+                            div.text(row.quantity + " of " + row.name);
+                            div.click(craftingDrilldown);
+                            recipeContainer.append(div);
+                        });
+                    },
+                    error: function (qXHR, textStatus, errorThrown) {
+                        $("#ForecastDIV").html((textStatus || "a") + "<div>" + (errorThrown || "b") + "</div>");
+                    }
+                });
+        }
+        $(document).ready(function () {
+            $.ajax(
+                {
+                    url: "https://localhost:53408/item",
+                    data: {},
+                    dataType: "json",
+                    method: "GET",
+                    success: function (d) {
+                        $.each(d, function (i, row) {
+                            var div = $("<div>");
+                            div.css("cursor", "pointer");
+                            div.data("itemId", row.itemId);
+                            div.text(row.name);
+                            div.click(craftingDrilldown);
+                            $("#ForecastDIV").append(div);
+                        });
+                    },
+                    error: function (qXHR, textStatus, errorThrown) {
+                        $("#ForecastDIV").html((textStatus || "a") + "<div>" + (errorThrown || "b") + "</div>");
+                    }
+                });
+            
+        });
+    </script>
+}
